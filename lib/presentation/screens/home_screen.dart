@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:lotto_app/presentation/screens/news_screen.dart';
+import 'package:lotto_app/presentation/screens/result_screen.dart';
 import 'package:lotto_app/presentation/widgets/carousel_slider.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:simple_barcode_scanner/simple_barcode_scanner.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // DateTime? _selectedDate;
   final List<String> userData = [
     'User 1',
     'User 2',
@@ -23,8 +27,20 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: const Color.fromARGB(251, 255, 249, 249),
         appBar: AppBar(
           centerTitle: true,
-          backgroundColor: const Color.fromRGBO(249, 227, 227, 1),
-          title: const Text('LOTTO RESULT'),
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Symbols.award_star,
+                color: Colors.red,
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              Text('LOTTO RESULT'),
+            ],
+          ),
           actions: [
             IconButton(onPressed: () {}, icon: const Icon(Icons.notifications)),
             IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
@@ -32,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
           leading: IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
         ),
         body: Padding(
-          padding: const EdgeInsets.only(left: 12, right: 12),
+          padding: const EdgeInsets.only(left: 8, right: 8, top: 8),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
@@ -51,16 +67,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           coustomButton(
-                              data: 'Scanner', icon: Icons.qr_code_scanner),
-                          coustomButton(
-                              data: 'Clime\nLottory',
-                              icon: Symbols.trophy),
-                          coustomButton(
-                              data: 'Lottory', icon: Symbols.flag)                                                                                                                                                                                                                                                                                         ,
-                          coustomButton(
-                              data: 'News', icon: Symbols.news),
-                          coustomButton(
-                              data: 'Saved', icon: Symbols.save),
+                            data: 'Scanner',
+                            icon: Icons.qr_code_scanner,
+                            onPressed: () {
+                              showDateDialog(context).then((value) {
+                                barcodeScanner();
+                              });
+                            },
+                          ),
+                          coustomButton(data: 'Claime', icon: Symbols.trophy,onPressed: (){
+
+                          }),
+                          coustomButton(data: 'Lottery', icon: Symbols.flag),
+                          coustomButton(data: 'News', icon: Symbols.news,onPressed: (){
+                             Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const NewsScreen(),
+                            ));
+
+                          }),
+                          coustomButton(data: 'Saved', icon: Symbols.save),
                         ],
                       ),
                     ),
@@ -77,17 +104,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Expanded(
-                            child: Divider(
-                          height: 5,
-                        )),
+                          child: Divider(
+                            height: 5,
+                          ),
+                        ),
                         Padding(
                           padding: EdgeInsets.only(left: 10, right: 10),
                           child: Text('22/4/4233'),
                         ),
                         Expanded(
-                            child: Divider(
-                          height: 5,
-                        )),
+                          child: Divider(
+                            height: 5,
+                          ),
+                        ),
                       ],
                     ),
                   );
@@ -95,20 +124,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 separatorBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 15),
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 20),
-                      height: 382,
-                      width: MediaQuery.of(context).size.width,
-                      color: Colors.grey[200],
-                      child: const Column(
-                        children: [
-                          Text('Akshaya AK 620 Winner List'),
-                          Divider(
-                            height: 1,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ResultScreen(),
+                            ));
+                      },
+                      child: Material(
+                        elevation: 2.0,
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
                           ),
-                          Text(''),
-                          Text('Item'),
-                        ],
+                          padding: const EdgeInsets.only(top: 20),
+                          height: 382,
+                          width: MediaQuery.of(context).size.width,
+                          child: const Column(
+                            children: [
+                              Text(
+                                'Akshaya AK 620 Winner List',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              ),
+                              Divider(
+                                height: 1,
+                              ),
+                              Text(''),
+                              Text('Item'),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -119,20 +168,86 @@ class _HomeScreenState extends State<HomeScreen> {
         ));
   }
 
-  Widget coustomButton({IconData? icon, required String data}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          width: 50,
-          height: 50,
-          decoration: const BoxDecoration(
-              shape: BoxShape.circle, color: Color.fromRGBO(249, 227, 227, 1)),
-          child: Icon(icon),
-        ),
-        Text(data)
-      ],
+  Widget coustomButton(
+      {IconData? icon, required String data, Function()? onPressed}) {
+    return InkWell(
+      onTap: onPressed,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color.fromRGBO(249, 227, 227, 1)),
+            child: Icon(icon),
+          ),
+          Text(data)
+        ],
+      ),
+    );
+  }
+
+  Future barcodeScanner() async {
+    var res = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SimpleBarcodeScannerPage(
+            isShowFlashIcon: true,
+          ),
+        ));
+    return res;
+  }
+
+  Future<void> showDateDialog(BuildContext context) async {
+    await showDialog<DateTime>(
+      context: context,
+      builder: (BuildContext context) {
+        // DateTime? tempPickedDate;
+
+        return AlertDialog(
+          title: const Text('Check the Date'),
+          content: SizedBox(
+            height: 150,
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    // if (date != null) {
+                    //   tempPickedDate = date;
+                    // }
+                  },
+                  child: const Text('Select Date'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            // Cancel Button
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(null); // Return null on cancel
+              },
+              child: const Text('Cancel'),
+            ),
+            // Yes Button
+            TextButton(
+              onPressed: () {
+                barcodeScanner();
+              },
+              child: const Text('Yes'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
